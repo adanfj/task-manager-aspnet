@@ -279,3 +279,4 @@ __pycache__/
 # End of https://www.toptal.com/developers/gitignore/api/astro,aspnetcore
 package-lock.json
 .vscode
+.env

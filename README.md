@@ -3,33 +3,42 @@
 Este proyecto consiste en dos aplicaciones que se ejecutan en un entorno Dockerizado:
 
 1. **API de ASP.NET Core** - Una API RESTful de backend construida utilizando ASP.NET Core.
-2. **Frontend de AstroJS** - Un generador de sitios web est ticos moderno utilizado para la parte delantera.
+2. **Frontend de AstroJS** - Un generador de sitios web moderno que, al utilizar la arquitectura de islas y tener compatibilidad con React, así como con SSR, nos permite controlar qué componentes se hidratan y cuándo, generando un tiempo de carga rápido sin perder ni un ápice ni contenido ni código javascript a ejecutar.
 
-Ambas aplicaciones se orquestan utilizando Docker Compose para un setup y despliegue f cil.
+### Librerías creadas
+En el frontend existe una librería que cree, inspirándome en la clase de axios, AxiosInstance. La clase se llama FetchInstance, y consume 2 funciones, appFetch y appFetchData. La primera utiliza la función nativa de fetch adaptándose al tipo de petición, de tal forma que donde sea necesario utilizar queries de url, un objeto o un formulario, adapta los parámetros en acorde a ello, de tal forma que sólo hace falta pasarle un *body*. Además, incluye ciertos headers dependiendo del cuerpo que se le pasa.
+`appFetch` retorna la respuesta normal de fetch, mientas que `appFetchData`, si hay información que extraer de la petición, la retorna, lanzando un error en caso contrario.
+Los métodos de la clase FetchInstance son los mismos que AxiosInstance:
+- get
+- post
+- put
+- delete
+
+Ambas aplicaciones se orquestan utilizando Docker Compose para un setup y despliegue fácil.
 
 ---
 
-## Caracter sticas
+## Características
 
 - **API de ASP.NET Core**
-  - API RESTful con documentaci n de Swagger.
+  - API RESTful con documentación de Swagger.
   - Entity Framework Core con una base de datos de MySQL.
   - Seguimiento de la arquitectura MVC.
 
 - **Frontend de AstroJS**
   - Frontend liviano y r pido.
-  - Consume la API para contenido din mico.
+  - Consume la API para contenido dinámico.
   - Totalmente responsivo.
 
 - **Entorno Dockerizado**
-  - Despliegue f cil con `docker-compose`.
+  - Despliegue fácil con `docker-compose`.
   - Contenedores separados para la API, frontend y base de datos.
 
 ---
 
 ## Requisitos previos
 
-Aseg rese de tener instalado lo siguiente:
+Asegúrese de tener instalado lo siguiente:
 
 - [Docker](https://docs.docker.com/get-docker/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
@@ -41,47 +50,58 @@ Aseg rese de tener instalado lo siguiente:
 ### 1. Clonar el Repositorio
 
 ```bash
-git clone https://github.com/tu-usuario/tu-repo.git
-cd tu-repo
+git clone https://github.com/adanfj/task-manager-aspnet
+cd task-manager-aspnet
 ```
 
-<!-- ### 2. Environment Configuration
+### 2. Environment Configuration
 
 Create a `.env` file in the root directory with the following variables:
 
 ```bash
-# MySQL Configuration
-DB_HOST=db
+# Configuración de MySQL
+DB_HOST=db ## Ejecutar migraciones
 DB_PORT=3306
 DB_USER=root
 DB_PASSWORD=example
 DB_NAME=MyDatabase
 
-# API Configuration
+# Configuración de la API
 ASPNETCORE_ENVIRONMENT=Development
-ASPNETCORE_URLS=http://+:5000
-
-# Frontend Configuration
-FRONTEND_PORT=3000
-``` -->
----
-### 3. Build and Run the Application
-Run the following command to build and start the containers:
-
-```bash
-docker-compose up --build
+ASPNETCORE_URLS=http://+:8080
 ```
 ---
-### 4. Access the Applications
+### 3. Compilar y Ejecutar la Aplicación
+Ejecute el siguiente comando para compilar primero los contenedores:
 
-- API (Swagger UI): http://adanfar.com:8090/swagger
-- Frontend: http://adanfar.com:3000
+```bash
+docker-compose build
+```
 ---
-## Project Structure
+
+Luego para ejecutar las migraciones ejecute los siguientes comandos:
+
+```bash
+docker run -it <api-image-name> /root/.dotnet/tools/dotnet-ef database update --project /app
+docker run -it <api-image-name> /root/.dotnet/tools/dotnet-ef migrations add InitialCreate --project /app
+```
+
+Y por último para ejecutar la aplicación:
+
+```bash
+docker-compose up
+```
+
+### 4. Acceder a las Aplicaciones
+
+- API (Swagger UI): http://143.47.53.136:8090/swagger
+- Frontend: http://143.47.53.136:3500
+---
+## Estructura del Proyecto
 
 ```csharp
 .
-├── backend/                  # ASP.NET Core API
+├── backend/                  # API de ASP.NET Core
 │   ├── Controllers/
 │   ├── Models/
 │   ├── Data/
@@ -89,19 +109,15 @@ docker-compose up --build
 │   ├── appsettings.json
 │   ├── Program.cs
 │   ├── Dockerfile
-├── frontend/                 # AstroJS Frontend
+├── app-astro/                 # Frontend de AstroJS
 │   ├── src/
 │   ├── public/
+│   ├── Properties/
 │   ├── package.json
 │   ├── astro.config.mjs
 │   ├── Dockerfile
-├── docker-compose.yml        # Docker Compose configuration
-├── README.md                 # Project documentation
+├── docker-compose.yml        # Configuración de Docker Compose
+├── README.md                 # Documentación del Proyecto
 ```
 ---
-## Running migrations
-*When the db container is running*
-```bash
-docker run -it <api-image-name> /root/.dotnet/tools/dotnet-ef database update --project /app
-docker run -it <api-image-name> /root/.dotnet/tools/dotnet-ef migrations add InitialCreate --project /app
-```
+
