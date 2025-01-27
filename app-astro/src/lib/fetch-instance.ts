@@ -1,14 +1,9 @@
 
 // import axios from "ax"
 // place files you want to import through the `$lib` alias in this folder.
-const validJSON = (str: string) => {
-    try {
-        JSON.parse(str);
-    } catch (e) {
-        return false;
-    }
-    return true;
-}
+
+import { validJSON } from "./utils";
+
 const appFetch = async (url: string | URL, method = "GET", body?: FormData | object | string, defaultHeaders?: Record<string, string>, withCredentials = false) => {
     if (!body)
         body = undefined;
@@ -20,7 +15,6 @@ const appFetch = async (url: string | URL, method = "GET", body?: FormData | obj
     let options = {
         method,
         headers: typeHeader,
-        // mode: "same-origin",
         body: method == "GET" ? undefined : (body !== undefined && typeof body == "object" && !(body instanceof FormData)
             ? JSON.stringify(body)
             : body),
@@ -49,6 +43,14 @@ const appFetchData = async <T>(url: string, method = "GET", body?: FormData | ob
     return json as T | { error: string };
 };
 
+    /**
+     * Function to convert a fetch request to a curl command so it can be copied and pasted to the terminal
+     * @param {string | URL} url - The URL of the request
+     * @param {string} [method="GET"] - The method of the request
+     * @param {FormData | object | string} [body] - The body of the request
+     * @param {Record<string, string>} [headers] - The headers of the request
+     * @returns {string} The curl command equivalent of the fetch request
+     */
 const fetchToCurl = (url: string | URL, method = "GET", body?: FormData | object | string, headers?: Record<string, string>) => {
 
     const headersString = Object.entries(headers ?? {}).map(([key, value]) => `-H ${key}: ${value}`).join(" ")
@@ -97,38 +99,53 @@ export class FetchInstance {
             return data as T
         }
         let res = await appFetch(`${this.baseURL}${path}`, "PUT", body, this.defaultHeaders, this.withCredentials);
-        if (res.status == 200) return true;
+        if (res.status.toString().startsWith("2")) return true;
         else throw new Error("Cannot update data");
     }
 
-    async delete<T extends object>(path: string, body?: string | object | FormData) {
+    async delete<T extends object>(path: string, body?: string | object | FormData, expectedData = false) {
         console.log(fetchToCurl(`${this.baseURL}${path}`, "DELETE", body, this.defaultHeaders));
-        let data = await appFetchData<T>(`${this.baseURL}${path}`, "DELETE", body, this.defaultHeaders, this.withCredentials);
-        if (Object.hasOwn(data, "error")) throw new Error((data as { error: string }).error)
-        return data as T
+        if (expectedData) {
+            let data = await appFetchData<T>(`${this.baseURL}${path}`, "DELETE", body, this.defaultHeaders, this.withCredentials);
+            if (Object.hasOwn(data, "error")) throw new Error((data as { error: string }).error)
+            return data as T
+        }
+        let res = await appFetch(`${this.baseURL}${path}`, "DELETE", body, this.defaultHeaders, this.withCredentials);
+        if (res.status.toString().startsWith("2")) return true;
+        else throw new Error("Cannot delete data");
     }
 }
 
+/**
+ * Returns a FetchInstance that will make requests to the API server.
+ *
+ * The API server is assumed to be located at `http://api:8080/api`.
+ *
+ * If `defaultHeaders` is provided, it will be used to set the default headers for all requests.
+ *
+ * @param {Record<string, string>} [defaultHeaders] The default headers to use for all requests.
+ * @returns {FetchInstance} A FetchInstance that will make requests to the API server.
+ */
 export const apiFetchInstance = (defaultHeaders?: Record<string, string>) => {
     let i = new FetchInstance("http://api:8080/api", true);
     i.defaultHeaders = defaultHeaders ?? {};
     return i;
 };
 
+/**
+ * Returns a FetchInstance that will make requests to the same origin.
+ *
+ * The requests will be made to the same origin as the current page.
+ *
+ * If `defaultHeaders` is provided, it will be used to set the default headers for all requests.
+ *
+ * @param {Record<string, string>} [defaultHeaders] The default headers to use for all requests.
+ * @returns {FetchInstance} A FetchInstance that will make requests to the same origin.
+ */
 export const appFetchInstance = (defaultHeaders?: Record<string, string>) => {
     let i = new FetchInstance("", true)
     i.defaultHeaders = defaultHeaders ?? {};
     return i;
 }
 
-export const validateURL = (url?: string) => {
-    if (!url) return false;
-    var pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
-        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
-        '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
-        '(\\:\\d+)?(/[-a-z\\d%_.~+]*)*' + // port and path
-        '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
-        '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
-    return !!pattern.test(url);
-}
 
