@@ -7,15 +7,15 @@ const Tasks: React.FC<{ tasks: Task[] }> = ({ tasks }) => {
     return (
         <div className="min-w-[600px]">
             <h1>Tasks</h1>
-            {tasksDOM.map((task,index) => (
+            {tasksDOM.map((task, index) => (
                 <div key={task.id} className="flex gap-4 border-b border-gray-500 py-2">
                     {
                         taskToEdit === task.id ? (
                             <form action="" encType="multipart/form-data" method="PUT" className="flex flex-col gap-1 shadow-lg p-4 w-full" onSubmit={async (e) => {
 
                                 e.preventDefault();
-                                console.log("Is completed",(e.target as HTMLFormElement).isCompleted)
-                                const editedTask:Task = {
+                                console.log("Is completed", (e.target as HTMLFormElement).isCompleted)
+                                const editedTask: Task = {
                                     id: task.id,
                                     title: (e.target as HTMLFormElement).title.value,
                                     description: (e.target as HTMLFormElement).description.value,
@@ -47,7 +47,7 @@ const Tasks: React.FC<{ tasks: Task[] }> = ({ tasks }) => {
                             </p>
                         )
                     }
-                    <button onClick={() => setTaskToEdit(task.id)} className="ml-auto w-fit bg-green-500 px-2 rounded-sm h-fit">Edit</button>
+                    <button onClick={() => setTaskToEdit(task.id)} disabled={task.isCompleted} className="ml-auto w-fit disabled:bg-green-900/75 bg-green-500 px-2 rounded-sm h-fit">Edit</button>
                     <button onClick={async () => {
                         if (window.confirm("Are you sure you want to delete this task?")) {
                             await appFetchInstance().delete(``, task)
