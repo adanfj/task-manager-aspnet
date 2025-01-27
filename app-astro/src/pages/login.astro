@@ -1,0 +1,49 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { apiFetchInstance } from "../lib/fetch-instance";
+
+const JWT_KEY =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.CazCBJykjFVu_5dsPAF_gj9VtUpL1mqCfVmYMuQDIl4";
+if (Astro.request.method == "POST") {
+    const form = await Astro.request.formData();
+    const Name = form.get("username");
+    const Password = form.get("password");
+    const response = await apiFetchInstance({
+        Authorization: `Bearer ${JWT_KEY}`,
+    }).post<{ token: string }>("/login", {
+        Name,
+        Password,
+    });
+    console.log(response);
+    if (response.token) {
+        Astro.cookies.set("token", response.token, {
+            path: "/",
+            maxAge: 3600,
+        });
+        return Astro.redirect("/");
+    }
+}
+---
+
+<Layout>
+    <main class="flex flex-col gap-8 items-center pt-48">
+        <h1>Login</h1>
+        <form
+            action=""
+            method="post"
+            class="flex flex-col items-center gap-4 w-fit"
+        >
+            <label
+                >Username <input type="text" name="username" required /></label
+            >
+            <label
+                >Password <input
+                    type="password"
+                    name="password"
+                    required
+                /></label
+            >
+            <button type="submit" class="w-fit">Login</button>
+        </form>
+    </main>
+</Layout>

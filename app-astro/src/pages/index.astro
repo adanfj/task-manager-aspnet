@@ -1,0 +1,54 @@
+---
+import Tasks from "../components/Tasks.tsx";
+import Layout from "../layouts/Layout.astro";
+import { apiFetchInstance } from "../lib/fetch-instance.ts";
+// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
+// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+let tasks: Task[]|{error: string} = [];
+try {
+	tasks = await apiFetchInstance({ Authorization: Astro.locals.token }).get<
+		Task[]
+	>("/task");
+	console.log("Tasks", tasks);
+	let { id, ...task } = (await Astro.request.json()) as Task;
+	switch (Astro.request.method) {
+		case "POST":
+			const newTask = await apiFetchInstance({
+					Authorization: Astro.locals.token,
+				}).post<Task>("/task", task);
+			console.log(newTask);
+			return new Response(JSON.stringify(newTask), { status: 201 });
+			break;
+		case "PUT":
+			console.log("Editing task", id, task);
+			console.log(
+				await apiFetchInstance({
+					Authorization: Astro.locals.token,
+				}).put<Task>(`/task/${id}`, task),
+			);
+			return new Response(null, { status: 200 });
+			break;
+		case "DELETE":
+			console.log(
+				await apiFetchInstance({
+					Authorization: Astro.locals.token,
+				}).delete<Task>(`/task/${id}`),
+			);
+
+			tasks = tasks.filter((task) => task.id !== id);
+			return new Response(null, { status: 204 });
+			break;
+		default:
+			break;
+	}
+} catch (error:any) {
+	if(error instanceof Error && error.message == "Unauthorized") return Astro.redirect("/login");
+	//Ignore since it would be a normal GET request
+}
+---
+
+<Layout>
+	<main class="flex justify-center pt-8">
+		<Tasks client:load tasks={tasks} />
+	</main>
+</Layout>

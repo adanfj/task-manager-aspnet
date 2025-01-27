@@ -1,0 +1,36 @@
+version: '3.9'
+
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_DATABASE: 'mydatabase'
+      MYSQL_USER: 'myuser'
+      MYSQL_PASSWORD: 'mypassword'
+    volumes:
+      - db-data:/var/lib/mysql
+
+  api:
+    build: ./api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: 'Server=db;Database=mydatabase;User=myuser;Password=mypassword;'
+      # PATH: "${PATH}:/root/.dotnet/tools"
+    working_dir: /out
+    depends_on:
+      - db
+    ports:
+      - "8090:8080"
+
+  app:
+    build: ./app-astro
+    ports:
+      - "3500:4321"
+    volumes:
+      - ./app-astro/src:/app/src
+    depends_on:
+      - api
+
+volumes:
+  db-data:
