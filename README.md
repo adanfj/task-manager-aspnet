@@ -1,4 +1,4 @@
-# Nombre del Proyecto
+# Administrador de Tareas de prueba
 
 Este proyecto consiste en dos aplicaciones que se ejecutan en un entorno Dockerizado:
 
@@ -97,6 +97,10 @@ docker-compose up
 
 - API (Swagger UI): http://143.47.53.136:8090/swagger
 - Frontend: http://143.47.53.136:3500
+
+> Credenciales de acceso (frontend):
+>   - Usuario: admin  
+>   - Contraseña: password
 ---
 ## Estructura del Proyecto
 
