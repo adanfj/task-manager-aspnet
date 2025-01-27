@@ -29,6 +29,7 @@ services:
       - "3500:4321"
     volumes:
       - ./app-astro/src:/app/src
+      - ./app-astro/astro.config.mjs:/app/src/astro.config.mjs
     depends_on:
       - api
 
