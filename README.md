@@ -5,6 +5,8 @@ Este proyecto consiste en dos aplicaciones que se ejecutan en un entorno Dockeri
 1. **API de ASP.NET Core** - Una API RESTful de backend construida utilizando ASP.NET Core.
 2. **Frontend de AstroJS** - Un generador de sitios web moderno que, al utilizar la arquitectura de islas y tener compatibilidad con React, así como con SSR, nos permite controlar qué componentes se hidratan y cuándo, generando un tiempo de carga rápido sin perder ni un ápice ni contenido ni código javascript a ejecutar.
 
+Ambas aplicaciones se orquestan utilizando Docker Compose para un setup y despliegue fácil.
+
 ### Librerías creadas
 En el frontend existe una librería que cree, inspirándome en la clase de axios, AxiosInstance. La clase se llama FetchInstance, y consume 2 funciones, appFetch y appFetchData. La primera utiliza la función nativa de fetch adaptándose al tipo de petición, de tal forma que donde sea necesario utilizar queries de url, un objeto o un formulario, adapta los parámetros en acorde a ello, de tal forma que sólo hace falta pasarle un *body*. Además, incluye ciertos headers dependiendo del cuerpo que se le pasa.
 `appFetch` retorna la respuesta normal de fetch, mientas que `appFetchData`, si hay información que extraer de la petición, la retorna, lanzando un error en caso contrario.
@@ -14,7 +16,6 @@ Los métodos de la clase FetchInstance son los mismos que AxiosInstance:
 - put
 - delete
 
-Ambas aplicaciones se orquestan utilizando Docker Compose para un setup y despliegue fácil.
 
 ---
 
