@@ -54,7 +54,7 @@ git clone https://github.com/adanfj/task-manager-aspnet
 cd task-manager-aspnet
 ```
 
-### 2. Environment Configuration
+<!-- ### 2. Environment Configuration
 
 Create a `.env` file in the root directory with the following variables:
 
@@ -69,7 +69,7 @@ DB_NAME=MyDatabase
 # Configuración de la API
 ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8080
-```
+``` -->
 ---
 ### 3. Compilar y Ejecutar la Aplicación
 Ejecute el siguiente comando para compilar primero los contenedores:
